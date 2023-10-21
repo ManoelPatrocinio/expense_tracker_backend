@@ -9,9 +9,8 @@
     "dev": "ts-node-dev --respawn --transpile-only --ignore-watch node_modules --no-notify src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "engines" : { 
-    "npm" : ">=9.2.0",
-    "node" : ">=14.17.0 <v18.13.0"
+  "engines": {
+    "node": ">=14.20.1"
   },
   "author": "Manoel Patrocinio",
   "license": "ISC",
