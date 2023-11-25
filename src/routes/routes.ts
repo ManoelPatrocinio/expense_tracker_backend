@@ -1,5 +1,6 @@
 import express, { Request, Response, Router } from 'express';
 import { eventModel } from '../model/Event';
+import { Event_type } from '../types/event';
 
 
 const basic_routers = Router();
@@ -73,4 +74,35 @@ basic_routers.delete("/remove_by_id/:eventId", async (request: Request, response
   }
 })
 
-export { basic_routers }  
+basic_routers.get("/balance_by_category/:date", async (request: Request, response: Response) => {
+  const { date } = request.params
+  try {
+    const eventsPerMonth = await eventModel.find({ date: { $regex: date } });
+
+    const eventsPerCategory = eventsPerMonth.reduce((accumulator: Event_type[], cur) => {
+      // guarda o nome atual e verifica se existe repetido
+      let category = cur.category;
+      let repetido = accumulator.find(elem => elem.category === category)
+      // se for repetido soma, caso contrário adiciona o elemento ao novo array
+      if (repetido) repetido.value += cur.value;
+      else accumulator.push(cur);
+      // retorna o elemento agrupado e somado
+      return accumulator;
+    }, []);
+    console.log("eventsPerMonth: ",eventsPerMonth)
+    return response
+      .status(201)
+      .json({ error: false, message: 'Sucesso', balanceCategory: eventsPerCategory });
+  } catch (error) {
+    console.log(error);
+    return response.json({
+      error: true,
+      message:
+        'Não foi possível retornar os eventos dessa data, tente novamente',
+    });
+  }
+
+})
+
+export { basic_routers }
+
