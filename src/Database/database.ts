@@ -1,24 +1,25 @@
-import mongoose from "mongoose";
-import "dotenv/config";
-let database: mongoose.Connection;
-const uri:(string|any) = process.env.MONGO_URL;
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
-export const connect = () => {
-  if (database) {
+export async function connect(): Promise<void> {
+  if (mongoose.connection.readyState === 1) {
     return;
   }
-  mongoose.connect(uri);
-  database = mongoose.connection;
-  database.once("open", async () => {
-    console.log("Connected to database");
-  });
-  database.on("error", () => {
-    console.log("Error connecting to database");
-  });
-};
-export const disconnect = () => {
-  if (!database) {
+
+  const mongoUrl = process.env.MONGO_URL;
+
+  if (!mongoUrl) {
+    throw new Error('A variável MONGO_URL precisa estar configurada no .env.');
+  }
+
+  await mongoose.connect(mongoUrl);
+  console.log('Connected to database');
+}
+
+export async function disconnect(): Promise<void> {
+  if (mongoose.connection.readyState === 0) {
     return;
   }
-  mongoose.disconnect();
-};
+
+  await mongoose.disconnect();
+}
